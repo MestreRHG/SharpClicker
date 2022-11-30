@@ -38,7 +38,7 @@ namespace AutoClicker
         bool stop = true;
         private void StartStopButton_Click(object sender, EventArgs e)
         {
-            System.Threading.Thread.Sleep(100);
+            Thread.Sleep(100);
             stop = !stop;
             if (!stop) StartTimer((int)numericUpDown.Value);
             if (stop) StopTimer((int)numericUpDown.Value);
@@ -46,7 +46,7 @@ namespace AutoClicker
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            MouseScript.leftclick(new Point(MousePosition.X, MousePosition.Y));
+            MouseScript.LeftClick(new Point(MousePosition.X, MousePosition.Y));
         }
 
         private void timer2_Tick(object sender, EventArgs e)
