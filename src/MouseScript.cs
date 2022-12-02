@@ -32,7 +32,7 @@ namespace AutoClicker
             mouse_event((int)(MouseEventFlags.MOUSEEVENTF_LEFTUP), p.X, p.Y, 0, 0);
         }
         //Middle Mouse Click
-        public static void MiddleClick(Point p)
+        public static void MidleClick(Point p)
         {
             mouse_event((int)(MouseEventFlags.MOUSEEVENTF_MIDDLEDOWN), p.X, p.Y, 0, 0);
             mouse_event((int)(MouseEventFlags.MOUSEEVENTF_MIDDLEUP), p.X, p.Y, 0, 0);

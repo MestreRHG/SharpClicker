@@ -1,7 +1,7 @@
 # SharpClicker
 ## _A autoclicker made with C#_
 
-SharpClicker is an simple auto clicker made with .net and WinForms
+SharpClicker is an simple autoclicker made with .net and WinForms
 
 - Change the settings and choose a button
 - Press the configured button to start and stop
@@ -10,8 +10,8 @@ SharpClicker is an simple auto clicker made with .net and WinForms
 ## Features
 
 - [X] Use a button or a key to start and stop the clicker
-- [X] Change the amount of time between clicks
-- [z] Change the mouse button that is being pressed
+- [X] Change the amount of time betwen clicks
+- [ ] Change the mouse button that is beeing pressed
 - [ ] After a set amount of time/clicks, the clicker turns off
 
 ## Installation
