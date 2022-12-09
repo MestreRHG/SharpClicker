@@ -12,7 +12,14 @@ SharpClicker is an simple auto clicker made with .net and WinForms
 - [X] Use a button or a key to start and stop the clicker
 - [X] Change the amount of time between clicks
 - [X] Change the mouse button that is being pressed
-- [ ] After a set amount of time/clicks, the clicker turns off
+- [X] After a set amount of time/clicks, the clicker turns off
+
+## How to use
+- On the top left field, you can set the amount of time between each click, in milliseconds;
+- On the top right field, you can set the mouse button you want to click;
+- On the down left field, you can set the amount of clicks the clicker can click, before stopping;
+- On the down right filed, you can set the amount of time in seconds the clicker can click, before stopping;
+- To start the clicker, you can click the button (and take the mouse before it turns on), or use F6 to start and stop.
 
 ## Installation
 

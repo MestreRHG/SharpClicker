@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Windows.Controls.Ribbon;
 using System.Windows.Input;
 using Timer = System.Windows.Forms.Timer;
 
@@ -7,23 +8,39 @@ namespace AutoClicker
     public partial class AutoClicker : Form
     {
         // The text that explains the numeric up and down
-        readonly Label textBox1 = new()
+        readonly Label numericUpAndDownText = new()
         { 
             Text = "Time between clicks (in ms)",
             Location = new Point(10, 10),
             Size = new Size(160, 20),
         };
         // The text that explains the drop down
-        readonly Label textBox2 = new()
+        readonly Label dropDownText = new()
         {
             Text = "Mouse Buttons",
-            Location = new Point(200, 10),
+            Location = new Point(220, 10),
             Size = new Size(160, 20),
         };
+        // The text that explains the second numeric up and down
+        readonly Label stopAfterClicksText = new()
+        {
+            Text = "Stop after amount of clicks",
+            Location = new Point(10, 60),
+            Size = new Size(160, 20),
+        };
+        // The text that explains the third numeric up and down 
+        readonly Label stopAfterTimeText = new()
+        {
+            Text = "Stop after amount of time (in seconds)",
+            Location = new Point(220, 60),
+            Size = new Size(160, 20),
+        };
+
         // The drop down to chose the mouse button being clicked
         readonly ComboBox comboBox = new() 
         { 
-            Location = new Point(200, 30),
+            Location = new Point(220, 30),
+            Size = new Size(150, 10),
             DropDownStyle = ComboBoxStyle.DropDownList,
         };
         // The field the users use to change the time between clicks
@@ -34,10 +51,23 @@ namespace AutoClicker
             Size = new Size(150, 30),
             Maximum = 1000,
         };
+        // Get the amount of clicks before ending the clicker
+        readonly NumericUpDown stopAfterClicks = new()
+        {
+            Location = new Point(10, 80),
+            Size = new Size(150, 10),
+        };
+        // Get the amount of time before ending the clicker
+        readonly NumericUpDown stopAfterTime = new()
+        {
+            Location = new Point(220, 80),
+            Size = new Size(150, 10),
+        };
+
         // The button that starts the clicker
         readonly Button StartStopButton = new()
         {
-            Location = new Point(10, 60),
+            Location = new Point(110, 120),
             Size = new Size(150, 30),
             Text = "Start/Stop",
         };
@@ -45,8 +75,16 @@ namespace AutoClicker
         readonly Timer timer1 = new();
         // The timer that checks input
         readonly Timer timer2 = new();
-        // A variable to know the clicker start or stop
+
+        // A variable to know if the clicker should start or stop
         bool stop = true;
+        // A variable to know if the user can click F6
+        bool canClick = true;
+
+        // The amount of clicks
+        int clickAmount = 0;
+        // The amount of time passed
+        int timePassed = 0;
 
         // Initiate the form
         public AutoClicker()
@@ -59,8 +97,12 @@ namespace AutoClicker
             comboBox.SelectedIndex = 0;
 
             // Initialize the controls
-            Controls.Add(textBox1);
-            Controls.Add(textBox2);
+            Controls.Add(numericUpAndDownText);
+            Controls.Add(dropDownText);
+            Controls.Add(stopAfterClicksText);
+            Controls.Add(stopAfterTimeText);
+            Controls.Add(stopAfterClicks);
+            Controls.Add(stopAfterTime);
             Controls.Add(comboBox);
             Controls.Add(numericUpDown);
             Controls.Add(StartStopButton);
@@ -78,23 +120,29 @@ namespace AutoClicker
         }
 
         // The timer that clicks the mouse
-        private void timer1_Tick(object sender, EventArgs e)
+        private void Timer1_Tick(object sender, EventArgs e)
         {
-            if(comboBox.SelectedIndex == 0)
+            if (comboBox.SelectedIndex == 0)
             {
                 MouseScript.LeftClick(new Point(MousePosition.X, MousePosition.Y));
+                clickAmount++;
+                timePassed++;
                 return;
             }
             if (comboBox.SelectedIndex == 1)
             {
                 MouseScript.MiddleClick(new Point(MousePosition.X, MousePosition.Y));
+                clickAmount++;
+                timePassed++;
                 return;
             }
             MouseScript.RightClick(new Point(MousePosition.X, MousePosition.Y));
+            clickAmount++;
+            timePassed++;
         }
 
         // The timer that reads input
-        private void timer2_Tick(object sender, EventArgs e)
+        private void Timer2_Tick(object sender, EventArgs e)
         {
             if (numericUpDown.Value == 0)
             {
@@ -102,22 +150,30 @@ namespace AutoClicker
                 numericUpDown.Value = 1;
             }
 
-            if (Keyboard.IsKeyDown(Key.F6))
+            if (Keyboard.IsKeyUp(Key.F6)) canClick = true;
+
+            if (Keyboard.IsKeyDown(Key.F6) && canClick)
             {
-                StartTimer((int)numericUpDown.Value);
+                stop = !stop;
+                if (!stop)
+                {
+                    StartTimer((int)numericUpDown.Value);
+                }
+                else StopTimer((int)numericUpDown.Value);
+                canClick = false;
             }
-            if (Keyboard.IsKeyDown(Key.F5))
-            {
-                StopTimer((int)numericUpDown.Value);
-            }
+
+            if (ShouldStop()) StopTimer((int)numericUpDown.Value);
+
+            Debug.WriteLine(timePassed);
         }
 
         // Initiate the timers
         private void AutoClicker_Load(object sender, EventArgs e)
         {
             #pragma warning disable CS8622
-            timer1.Tick += new EventHandler(timer1_Tick);
-            timer2.Tick += new EventHandler(timer2_Tick);
+            timer1.Tick += new EventHandler(Timer1_Tick);
+            timer2.Tick += new EventHandler(Timer2_Tick);
             StartStopButton.Click += new EventHandler(StartStopButton_Click);
             #pragma warning restore CS8622
 
@@ -129,6 +185,7 @@ namespace AutoClicker
         // Start the clicker
         void StartTimer(int timeBetwenClicks)
         {
+            stop = false;
             timer1.Interval = timeBetwenClicks;
             timer1.Start();
         }
@@ -136,8 +193,30 @@ namespace AutoClicker
         // Stop the clicker
         void StopTimer(int timeBetwenClicks)
         {
+            stop = true;
+            clickAmount = 0;
+            timePassed = 0;
+
             timer1.Interval = timeBetwenClicks;
             timer1.Stop();
+        }
+
+        // Detect if either the clicker has clicked enough or has passed enough time
+        bool ShouldStop()
+        {
+            // Check if should stop after clicks
+            if(stopAfterClicks.Value != 0)
+            {
+                // Check if the clicker has clicked enough
+                if (stopAfterClicks.Value <= clickAmount) return true;
+            }
+            // Check if should stop after time has passed
+            if(stopAfterTime.Value != 0)
+            {
+                // Check if all the time has passed
+                if ((stopAfterTime.Value * 50) <= timePassed) return true;
+            }
+            return false;
         }
     }
 }
